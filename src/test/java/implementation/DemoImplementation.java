@@ -6,17 +6,42 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import org.junit.Assert;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 public class DemoImplementation {
+
+
+    public static Properties properties = new Properties();
+    public static String apiUrl;
+    public static String authentication;
+
+    public static void properties(){
+        try (InputStream inputStream = new FileInputStream("config.properties")) {
+            properties.load(inputStream);
+
+            // Access the URL and string by their keys
+             apiUrl = properties.getProperty("url");
+            authentication = properties.getProperty("auth");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //--------------------------------------
 
     public static String bookingId;
    static Logger log = Logger.getLogger(String.valueOf(DemoImplementation.class));
     public static void getMethod() {
         log.info("*****************************GET METHOD**************************");
         try {
+
             RequestSpecification request = RestAssured.given()
-                    .baseUri(Resources.url)
+                    .baseUri(apiUrl)
                     .log()
                     .all()
                     .contentType(ContentType.JSON);
@@ -34,7 +59,6 @@ public class DemoImplementation {
 
             int status = response.getStatusCode();
             Assert.assertEquals(200, status);
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -46,61 +70,62 @@ public class DemoImplementation {
 
         try {
 
-            RequestSpecification requestSpecification = RestAssured
-                    .given()
-                    .baseUri(Resources.url)
-                    .contentType(ContentType.JSON);
+                RequestSpecification requestSpecification = RestAssured
+                        .given()
+                        .baseUri(apiUrl)
+                        .contentType(ContentType.JSON);
 
-            JSONObject payload = new JSONObject();
-            payload.put("firstname", "Diksha");
-            payload.put("lastname", "popli");
-            payload.put("totalprice", 122);
-            payload.put("depositpaid", true);
+                JSONObject payload = new JSONObject();
+                payload.put("firstname", "Diksha");
+                payload.put("lastname", "popli");
+                payload.put("totalprice", 122);
+                payload.put("depositpaid", true);
 
-            //--Nested JSON Object
-            JSONObject innerPayLoad = new JSONObject();
-            innerPayLoad.put("checkin", "2018-01-01");
-            innerPayLoad.put("checkout", "2019-01-01");
-            payload.put("bookingdates", innerPayLoad);
-            payload.put("additionalneeds", "bowls");
+                //--Nested JSON Object
+                JSONObject innerPayLoad = new JSONObject();
+                innerPayLoad.put("checkin", "2018-01-01");
+                innerPayLoad.put("checkout", "2019-01-01");
+                payload.put("bookingdates", innerPayLoad);
+                payload.put("additionalneeds", "bowls");
 
 
-            Response response = requestSpecification
-                    .body(payload.toString())
-                    .post()
-                    .then()
-                    .extract()
-                    .response();
-            String string = response.prettyPrint();
+                Response response = requestSpecification
+                        .body(payload.toString())
+                        .post()
+                        .then()
+                        .extract()
+                        .response();
+                String string = response.prettyPrint();
 
-        //----To Get that Specific id where we are going to perform patch put and delete method
+                //----To Get that Specific id where we are going to perform patch put and delete method
 
-        String finalString="";//----To store responseBody as String which doest not contain "{" and "}"
-        for(int i=0;i<string.length();i++){
-            if(!(string.charAt(i)=='{' || string.charAt(i)=='}')){
-                finalString=finalString.concat(""+string.charAt(i));
+                String finalString = "";//----To store responseBody as String which doest not contain "{" and "}"
+                for (int i = 0; i < string.length(); i++) {
+                    if (!(string.charAt(i) == '{' || string.charAt(i) == '}')) {
+                        finalString = finalString.concat("" + string.charAt(i));
+                    }
+                }
+
+                //----Split the finalString where we found ":" and ","
+                String[] splitFinalString = finalString.split("[:]+|[,]+");
+
+                //----at 1st index we are going to have our bookingId
+                bookingId = "" + splitFinalString[1];
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-
-        //----Split the finalString where we found ":" and ","
-        String[] splitFinalString=finalString.split("[:]+|[,]+");
-
-        //----at 1st index we are going to have our bookingId
-        bookingId= ""+splitFinalString[1];
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
 //    -----------------Patch method to change firstname and lastname
     public static void patchMethodForBooking() {
         log.info("*************************PATCH METHOD**********************");
         try {
+
             RequestSpecification requestForPatch = RestAssured
                     .given()
-                    .baseUri(Resources.url)
+                    .baseUri(apiUrl)
                     .contentType(ContentType.JSON)
-                    .header("Authorization", Resources.auth)
+                    .header("Authorization", authentication)
                     .header("Accept", "application/json");
 
 
@@ -132,9 +157,9 @@ public class DemoImplementation {
 
             RequestSpecification requestForPut = RestAssured
                     .given()
-                    .baseUri(Resources.url)
+                    .baseUri(apiUrl)
                     .contentType(ContentType.JSON)
-                    .header("Authorization", Resources.auth)
+                    .header("Authorization", authentication)
                     .header("Accept", "application/json");
 
 
@@ -168,9 +193,9 @@ public class DemoImplementation {
         try {
             RequestSpecification requestForDelete = RestAssured
                     .given()
-                    .baseUri(Resources.url)
+                    .baseUri(apiUrl)
                     .contentType(ContentType.JSON)
-                    .header("Authorization", Resources.auth)
+                    .header("Authorization", authentication)
                     .header("Accept", "application/json");
 
             requestForDelete
