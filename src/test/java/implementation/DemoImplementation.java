@@ -19,6 +19,7 @@ public class DemoImplementation {
     public static String apiUrl;
     public static String authentication;
 
+    //----For Reading and Fetching data from properties file
     public static void properties(){
         try (InputStream inputStream = new FileInputStream("config.properties")) {
             properties.load(inputStream);
@@ -31,8 +32,6 @@ public class DemoImplementation {
             e.printStackTrace();
         }
     }
-
-    //--------------------------------------
 
     public static String bookingId;
    static Logger log = Logger.getLogger(String.valueOf(DemoImplementation.class));
