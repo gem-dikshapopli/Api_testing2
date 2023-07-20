@@ -20,6 +20,7 @@ public class DemoImplementation {
     public static String authentication;
     public static RequestSpecification request;
 
+    //----For Reading and Fetching data from properties file
     public static void properties(){
         try (InputStream inputStream = new FileInputStream("config.properties")) {
             properties.load(inputStream);
@@ -33,6 +34,7 @@ public class DemoImplementation {
         }
     }
 
+<<<<<<< HEAD
     public static void makingRequest(){
                  request = RestAssured
                 .given()
@@ -42,6 +44,8 @@ public class DemoImplementation {
                 .header("Accept", "application/json");
     }
 
+=======
+>>>>>>> b9211630e050197e465ccdabded194ffbed1cb30
     public static String bookingId;
    static Logger log = Logger.getLogger(String.valueOf(DemoImplementation.class));
     public static void getMethod() {
