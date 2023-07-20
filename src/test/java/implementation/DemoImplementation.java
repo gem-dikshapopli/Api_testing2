@@ -179,7 +179,7 @@ public class DemoImplementation {
                     .extract()
                     .response();
 
-            //----GET we will get the Status Code as 403 which will give us not found
+            //----GET we will get the Status Code as 404 which will give us not found
             requestForDelete
                     .get(bookingId)
                     .then()
