@@ -18,6 +18,7 @@ public class DemoImplementation {
     public static Properties properties = new Properties();
     public static String apiUrl;
     public static String authentication;
+    public static RequestSpecification request;
 
     public static void properties(){
         try (InputStream inputStream = new FileInputStream("config.properties")) {
@@ -32,20 +33,22 @@ public class DemoImplementation {
         }
     }
 
-    //--------------------------------------
+    public static void makingRequest(){
+                 request = RestAssured
+                .given()
+                .baseUri(apiUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", authentication)
+                .header("Accept", "application/json");
+    }
 
     public static String bookingId;
    static Logger log = Logger.getLogger(String.valueOf(DemoImplementation.class));
     public static void getMethod() {
         log.info("*****************************GET METHOD**************************");
         try {
-
-            RequestSpecification request = RestAssured.given()
-                    .baseUri(apiUrl)
-                    .log()
-                    .all()
-                    .contentType(ContentType.JSON);
-
+            //-------------To Make Request
+            makingRequest();
 
             Response response = request
                     .get()
@@ -70,10 +73,7 @@ public class DemoImplementation {
 
         try {
 
-                RequestSpecification requestSpecification = RestAssured
-                        .given()
-                        .baseUri(apiUrl)
-                        .contentType(ContentType.JSON);
+                makingRequest();
 
                 JSONObject payload = new JSONObject();
                 payload.put("firstname", "Diksha");
@@ -89,7 +89,7 @@ public class DemoImplementation {
                 payload.put("additionalneeds", "bowls");
 
 
-                Response response = requestSpecification
+                Response response = request
                         .body(payload.toString())
                         .post()
                         .then()
@@ -121,19 +121,14 @@ public class DemoImplementation {
         log.info("*************************PATCH METHOD**********************");
         try {
 
-            RequestSpecification requestForPatch = RestAssured
-                    .given()
-                    .baseUri(apiUrl)
-                    .contentType(ContentType.JSON)
-                    .header("Authorization", authentication)
-                    .header("Accept", "application/json");
+            makingRequest();
 
 
             JSONObject payloadForPatch = new JSONObject();
             payloadForPatch.put("firstname", "changed");//The Changed Payload
 
 
-            Response responseForPatch = requestForPatch
+            Response responseForPatch = request
                     .body(payloadForPatch.toString())
                     .patch(bookingId)
                     .then()
@@ -155,13 +150,7 @@ public class DemoImplementation {
 
         try {
 
-            RequestSpecification requestForPut = RestAssured
-                    .given()
-                    .baseUri(apiUrl)
-                    .contentType(ContentType.JSON)
-                    .header("Authorization", authentication)
-                    .header("Accept", "application/json");
-
+            makingRequest();
 
             JSONObject payloadForPut = new JSONObject();
             payloadForPut.put("firstname", "chng");
@@ -174,7 +163,7 @@ public class DemoImplementation {
             payloadForPut.put("bookingdates", innerPayLoadForPut);
             payloadForPut.put("additionalneeds", "bowls");
 
-            Response responseForPut = requestForPut
+            Response responseForPut = request
                     .body(payloadForPut.toString())
                     .put(bookingId)
                     .then()
@@ -191,27 +180,22 @@ public class DemoImplementation {
     public static void deleteMethodForBooking() {
         log.info("***********************DELETE METHOD***********************");
         try {
-            RequestSpecification requestForDelete = RestAssured
-                    .given()
-                    .baseUri(apiUrl)
-                    .contentType(ContentType.JSON)
-                    .header("Authorization", authentication)
-                    .header("Accept", "application/json");
+            makingRequest();
 
-            requestForDelete
-                    .delete(bookingId)
-                    .then()
-                    .extract()
-                    .response();
+            request
+            .delete(bookingId)
+            .then()
+            .extract()
+            .response();
 
             //----GET we will get the Status Code as 404 which will give us not found
-            requestForDelete
-                    .get(bookingId)
-                    .then()
-                    .log()
-                    .all()
-                    .extract()
-                    .response();
+            request
+            .get(bookingId)
+            .then()
+            .log()
+            .all()
+            .extract()
+            .response();
         }catch (Exception e){
             e.printStackTrace();
         }
